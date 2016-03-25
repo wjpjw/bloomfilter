@@ -12,7 +12,7 @@ int                                 n;   // nr vector bits
 int                                 m;   // nr elements
 int                                 k;   // nr hash functions
 int*                                training_set;
-unsigned int*                       tab;
+int*                                tab;
 int                                 hash_mask;
 
 int main(int argc, char**argv){

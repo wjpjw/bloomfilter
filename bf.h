@@ -3,8 +3,6 @@
 
 #define MAX_NR_HASH   120
 #define MAX_UNIVERSE  1048576
-#define HSTART 0xBB40E64DA205B064L;
-#define HMULT  7664345821815920749L;
 
 /*
   universe:            {1,2,3,4,...1048576}
@@ -20,21 +18,11 @@ extern int                                 n;   // nr vector bits
 extern int                                 m;   // nr elements
 extern int                                 k;   // nr hash functions
 extern int*                                training_set; // randomly generated, each element distinct
-extern unsigned int*                       tab;
+extern int*                                tab;
 extern int                                 hash_mask;
   
-static inline unsigned int                        hash(int input, int hash_id){
-  char str[15];
-  sprintf(str, "%d", input);
-  unsigned int h = (unsigned int)HSTART;
-  unsigned int hmult = (unsigned int)HMULT;
-  int start = 256 * hash_id;
-  for (int i = 0; i < strlen(str); i++) {
-    unsigned char ch = (unsigned char)str[i];
-    h = (h * hmult) ^ tab[start + (ch & 0xff)];
-    h = (h * hmult) ^ tab[start + ((ch >> 8) & 0xff)];
-  }
-  return (unsigned int)(h&hash_mask);
+static inline int                                 hash(int input, int hash_id){
+  return (tab[hash_id]+input)%n;
 }
 
 static inline void                                bf_create(){
@@ -45,14 +33,10 @@ static inline void                                bf_create(){
     printf("n/m too large!");
     exit(-1);
   }
-  tab=(int*)malloc(sizeof(int)*k*256);
-  unsigned int h = (unsigned int)0x544B2FBACAAF1684L;
-  for (int i = 0; i < k*256; i++) {
-    for (int j = 0; j < 31; j++)
-      h = (h >> 7) ^ h; h = (h << 11) ^ h; h = (h >> 10) ^ h;
-    tab[i] = h;
-  }
-  hash_mask = (1 << ((int)log2(n)) ) - 1;
+  tab=(int*)malloc(sizeof(int)*k);
+  for(int i=0;i<k;i++){
+    tab[i]=rand()/MAX_UNIVERSE;
+  }  
 }
 static inline void                                bf_destroy(){
   free(bf_vector);
